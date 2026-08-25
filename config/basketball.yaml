@@ -1,0 +1,32 @@
+# ============================================================
+# Basketball Configuration
+# ============================================================
+
+name: "basketball"
+
+# --- Spatial & Court Mapping ---
+spatial:
+  court_dimensions:
+    length: 28.65 # meters
+    width: 15.24  # meters
+  
+  zones:
+    # Approximate 3-point lines and paint areas
+    hoop_home: [1.575, 7.62] # Center of the hoop
+    hoop_away: [27.075, 7.62]
+    paint_home: [[0, 5.8], [5.8, 5.8], [5.8, 9.44], [0, 9.44]]
+    paint_away: [[28.65, 5.8], [22.85, 5.8], [22.85, 9.44], [28.65, 9.44]]
+
+# --- Event Detection Rules ---
+events:
+  scored_basket:
+    ball_in_zone_radius: 0.5 # meters around hoop center
+    z_axis_trajectory: "downward" # Requires 3D tracking / LiDAR
+
+  three_pointer:
+    distance_to_hoop_start: 6.75 # FIBA (NBA is 7.24)
+
+# --- LiDAR / 3D Tracking (Basketball Specific) ---
+laser:
+  min_height_threshold: 0.1 # Filter ground points
+  ball_radius: 0.12 # meters

@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# ── 1. Secret scan ────────────────────────────────────────────────────────────
+GITLEAKS=$(command -v gitleaks 2>/dev/null || echo "$HOME/.local/bin/gitleaks")
+if [ ! -x "$GITLEAKS" ]; then
+  echo "Error: gitleaks not found. Install it:"
+  echo "  curl -fsSL https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_x64.tar.gz | tar -xz -C ~/.local/bin gitleaks"
+  exit 1
+fi
+
+echo "Scanning for secrets..."
+"$GITLEAKS" protect --staged --config=.gitleaks.toml -v
+if [ $? -ne 0 ]; then
+  echo "Secret leak detected. Commit aborted."
+  exit 1
+fi
+
+# ── 2. Tests (Python) ─────────────────────────────────────────────────────────
+echo "Running pytest before commit..."
+
+# Ensure python tests are run in virtualenv if available
+if [ -d ".venv" ]; then
+    .venv/bin/pytest tests/ -v
+else
+    pytest tests/ -v
+fi
+
+if [ $? -ne 0 ]; then
+  echo "Tests failed. Commit aborted."
+  exit 1
+fi

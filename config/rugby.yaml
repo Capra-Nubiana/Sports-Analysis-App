@@ -1,0 +1,38 @@
+# ============================================================
+# Rugby Configuration
+# ============================================================
+
+name: "rugby"
+
+# --- Spatial & Pitch Mapping ---
+spatial:
+  pitch_dimensions:
+    length: 100.0 # meters (try-line to try-line)
+    width: 70.0   # meters
+    try_zone_depth: 22.0 # maximum
+  
+  zones:
+    try_zone_home: [[-22, 0], [0, 0], [0, 70], [-22, 70]]
+    try_zone_away: [[100, 0], [122, 0], [122, 70], [100, 70]]
+    twenty_two_home: [[0, 0], [22, 0], [22, 70], [0, 70]]
+    twenty_two_away: [[78, 0], [100, 0], [100, 70], [78, 70]]
+
+# --- Event Detection Rules ---
+events:
+  try_scored:
+    ball_in_zone: ["try_zone_home", "try_zone_away"]
+    player_distance_to_ball_threshold: 0.5 # meters (ball grounded by player)
+
+  tackle:
+    overlap_distance_threshold: 1.0 # meters
+    velocity_drop: 0.7 # 70% immediate reduction in forward velocity
+
+  scrum:
+    player_density_threshold: 8 # Minimum players clustered
+    cluster_radius: 3.5 # meters
+    stationary_duration: 3.0 # seconds
+
+# --- Wearable Integration (Rugby Specific) ---
+wearables:
+  imu:
+    g_force_threshold_tackle: 8.0 # Higher threshold for rugby tackles

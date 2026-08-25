@@ -1,0 +1,41 @@
+# ============================================================
+# Base Configuration (Shared across all sports)
+# ============================================================
+
+# --- Video Input ---
+video:
+  target_fps: 30
+  resolution: [1920, 1080] # WxH
+  skip_frames: 1           # Process every frame (1) or every nth frame (e.g. 2 for half fps)
+
+# --- Detection Pipeline ---
+detection:
+  model_path: "models/yolov8x.pt"
+  confidence_threshold: 0.3
+  nms_threshold: 0.5
+  classes:
+    - 0  # Person (Player/Referee)
+    - 32 # Sports ball
+
+# --- Tracking ---
+tracking:
+  algorithm: "bytetrack"   # 'bytetrack' or 'botsort'
+  track_thresh: 0.25
+  track_buffer: 60         # Frames to keep lost tracks
+  match_thresh: 0.8
+  frame_rate: 30
+
+# --- Biometrics & Wearables (SKDH/Floodlight/PhysioDSP) ---
+wearables:
+  sync_method: "timestamp" # 'timestamp' or 'correlate_motion'
+  hrv:
+    window_sec: 60
+    min_quality: 0.8
+  imu:
+    sampling_rate: 100     # Hz
+    g_force_threshold: 4.0 # High impact threshold
+
+# --- Output ---
+output:
+  timeline_format: "json"
+  save_annotated_video: true

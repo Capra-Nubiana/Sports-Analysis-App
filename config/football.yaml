@@ -1,0 +1,33 @@
+# ============================================================
+# Football Configuration
+# ============================================================
+
+name: "football"
+
+# --- Spatial & Pitch Mapping ---
+spatial:
+  pitch_dimensions:
+    length: 105.0 # meters
+    width: 68.0   # meters
+  
+  zones:
+    goal_area_home: [[0, 24.84], [5.5, 24.84], [5.5, 43.16], [0, 43.16]]
+    goal_area_away: [[105, 24.84], [99.5, 24.84], [99.5, 43.16], [105, 43.16]]
+    penalty_area_home: [[0, 13.84], [16.5, 13.84], [16.5, 54.16], [0, 54.16]]
+    penalty_area_away: [[105, 13.84], [88.5, 13.84], [88.5, 54.16], [105, 54.16]]
+
+# --- Event Detection Rules ---
+events:
+  goal:
+    ball_in_zone: ["goal_area_home", "goal_area_away"]
+    min_velocity_change: 0.2
+  
+  pass:
+    max_distance_to_nearest_player_start: 1.5 # meters
+    max_distance_to_nearest_player_end: 1.5   # meters
+
+# --- Team Classification ---
+team_classification:
+  num_clusters: 3 # Team A, Team B, Referee
+  min_player_crop_w: 10
+  min_player_crop_h: 20

@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Models (large binary files)
+models/*.pt
+models/*.onnx
+models/*.engine
+!models/.gitkeep
+
+# Data & Output
+output/
+data/
+*.mp4
+*.avi
+*.mkv
+*.webm
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Type checking
+.mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# LiDAR data
+*.las
+*.laz
+*.pcd
+*.ply
+
+# Wearable data
+*.fit
+*.tcx
+*.gpx

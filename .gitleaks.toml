@@ -1,0 +1,17 @@
+title = "Sports Analysis App gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Known-safe values that are not real secrets"
+regexes = [
+    # Placeholder strings in config or .env.example
+    "replace_with_",
+    "changeme",
+    "your_api_key_here",
+]
+paths = [
+    ".env.example",
+    "config/base.yaml",
+]
