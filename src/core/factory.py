@@ -23,6 +23,12 @@ class ComponentFactory:
         cls = getattr(module, class_name)
         return cls(**kwargs)
 
+    def create_event_detector(self) -> Any:
+        """Create sport-specific Event Detector."""
+        from src.events.factory import EventDetectorFactory
+
+        return EventDetectorFactory.create(self.config.sport_name, self.config)
+
     def create_video_source(self, video_path: str) -> DataSource:
         """Create OpenCV Video Source."""
         # Hardcoded for Phase 1, can be dynamic later
