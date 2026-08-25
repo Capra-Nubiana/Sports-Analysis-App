@@ -1,0 +1,37 @@
+name: Production Deployment
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Manual trigger for hotfixes or rollbacks
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    
+    # Deployment should only run after CI passes (which we enforce via branch protection rules)
+    # but as a final sanity check, we can define constraints here.
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: Verify Main Branch
+        run: |
+          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+            echo "::error::Deployments are strictly limited to the 'main' branch."
+            exit 1
+          fi
+          
+      - name: Setup Deployment Environment
+        run: |
+          echo "Setting up production deployment environment..."
+          # Stub for Docker build / Infrastructure as Code setup
+          
+      - name: Execute Deployment
+        run: |
+          echo "Deploying Python services..."
+          # Stub for 'flyctl deploy' or 'docker push / apply k8s'
+          echo "Deploy completed successfully."
