@@ -7,7 +7,7 @@ A comprehensive reference for the Sports Analysis App — its architecture, comp
 1. [Project Overview](#1-project-overview)
 2. [Architecture Principles](#2-architecture-principles)
 3. [Phase 1 — Core Pipeline + Wearables + Laser (Complete)](#3-phase-1--core-pipeline--wearables--laser-complete)
-4. [Phase 2 — Event Detection & Highlights (Planned)](#4-phase-2--event-detection--highlights-planned)
+4. [Phase 2 — Event Detection & Highlights (Complete)](#4-phase-2--event-detection--highlights-complete)
 5. [Phase 3 — Dashboard & API (Planned)](#5-phase-3--dashboard--api-planned)
 6. [Phase 4 — Optimization (Planned)](#6-phase-4--optimization-planned)
 7. [Setup & Verification](#7-setup--verification)
@@ -212,7 +212,7 @@ Status: **Complete** ✓
 
 | File | Triggers | Behavior |
 |------|----------|----------|
-| `ci.yml` | PR to develop/main, push to feature/* and develop | Runs gitleaks secret scan, black format check, pytest. Enforces linear merge: feature/* → develop, develop → main only |
+| `ci.yml` | PR to develop/main, push to feature/* and develop | Runs gitleaks secret scan (direct `gitleaks detect` command to handle force-push), black format check, pytest. Enforces linear merge: feature/* → develop, develop → main only |
 | `deploy.yml` | Push to main, manual dispatch | Production deployment stub with branch verification |
 
 ---
@@ -316,6 +316,10 @@ black --check src/ tests/ scripts/
 # Smoke tests
 python -c "from src.core.sport_config import SportConfig; print(SportConfig('football'))"
 python -c "from src.core.factory import ComponentFactory; f = ComponentFactory('football'); print(f.create_detector())"
+python -c "from src.events.factory import EventDetectorFactory; print(EventDetectorFactory.create('football', SportConfig('football')))"
+python -c "from src.highlights.scorer import HighlightScorer; print(HighlightScorer())"
+python -c "from src.highlights.ffmpeg_extractor import ClipExtractor; print(ClipExtractor('test.mp4'))"
+python -c "from src.highlights.audio_analyzer import AudioAnalyzer; print(AudioAnalyzer())"
 ```
 
 **Verification status (Phase 1):**
@@ -331,6 +335,35 @@ python -c "from src.core.factory import ComponentFactory; f = ComponentFactory('
 | smoke: ComponentFactory | ✓ Creates detector with config |
 | smoke: FatigueAnalyzer | ✓ Imports correctly |
 | smoke: scripts package | ✓ Imports correctly |
+
+**Verification status (Phase 2):**
+
+| Check | Result |
+|-------|--------|
+| pytest (29 tests) | ✓ All passing |
+| ruff check | ✓ Clean (57 files) |
+| ruff format --check | ✓ Clean |
+| black --check | ✓ Clean |
+| mypy src/ | ✓ 0 errors (45 files) |
+| CI: gitleaks | ✓ Clean (direct gitleaks detect) |
+| CI: pytest (GitHub Actions) | ✓ All passing |
+| CI: branch routing | ✓ Pass (feature/* → develop only) |
+
+### CLI Usage
+
+```bash
+# Basic analysis (tracking + event detection)
+python -m src.core.pipeline --sport football --video input/match.mp4
+
+# Analysis + highlight reel generation
+python -m src.core.pipeline --sport football --video input/match.mp4 --highlights
+
+# Download pre-trained YOLO weights
+python scripts/download_models.py
+
+# Benchmark inference throughput
+python scripts/benchmark.py --model yolov8x.pt --video input/match.mp4 --frames 300
+```
 
 ---
 
