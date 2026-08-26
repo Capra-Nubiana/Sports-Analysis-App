@@ -36,6 +36,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           config_path: .gitleaks.toml
+          # Scan full repository to avoid commit-range issues on force-push
+          args: --log-opts=--all
 
       - name: Check code formatting (Black)
         run: |
