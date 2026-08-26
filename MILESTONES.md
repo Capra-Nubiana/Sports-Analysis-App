@@ -217,15 +217,53 @@ Status: **Complete** ✓
 
 ---
 
-## 4. Phase 2 — Event Detection & Highlights (Planned)
+## 4. Phase 2 — Event Detection & Highlights (Complete)
 
-Status: **Not started** — skeleton directories exist (`src/events/`, `src/highlights/`)
+Status: **Complete** ✓
 
-**Planned work:**
-- Sport-specific event rule engines (goal, tackle, try, basket, pass)
-- Highlight scoring algorithm with FFmpeg/MoviePy clip assembly
-- Audio spike detection via LibROSA (crowd noise analysis)
-- Configurable event confidence thresholds per sport
+### 4.1 Event Detection (`src/events/`)
+
+| File | Description |
+|------|-------------|
+| `base.py` | `BaseEventDetector` abstract class: shared state tracking, ball/player filtering, spatial lookups, cooldown management |
+| `football.py` | `FootballEventDetector` — detects goals (ball in goal zone), passes (ball-to-player distance tracking) |
+| `rugby.py` | `RugbyEventDetector` — detects tries (ball in try zone), tackles (velocity drop + proximity), scrums (player clustering), IMU impact flagging |
+| `basketball.py` | `BasketballEventDetector` — detects scored baskets (ball near hoop center), three-pointers (shot distance + trajectory) |
+| `factory.py` | `EventDetectorFactory` — sport-specific detector creation via registry dict |
+
+**Sport event rule configs** (in `config/*.yaml`):
+- Football: goal zones, pass distance thresholds (1.5m)
+- Rugby: try zones, tackle overlap (1.0m) + velocity drop (70%), scrum density (8 players, 3.5m radius, 3s stationary), tackle G-force (8.0 G)
+- Basketball: hoop positions (points), basket radius (0.5m), three-point distance (6.75m)
+
+### 4.2 Highlight Generation (`src/highlights/`)
+
+| File | Description |
+|------|-------------|
+| `scorer.py` | `HighlightScorer` — event importance weights, time-window clipping (2s pre + 3s post), overlap deduplication |
+| `ffmpeg_extractor.py` | `ClipExtractor` — FFmpeg (primary) + MoviePy (fallback) clip extraction, concatenation into highlight reel |
+| `audio_analyzer.py` | `AudioAnalyzer` — LibROSA RMS energy spike detection for crowd noise analysis |
+
+**Default highlight weights:** goal=10, try=10, scored_basket=8, tackle=6, three_pointer=7, pass=2, scrum=3
+
+### 4.3 Pipeline Integration
+
+- `ComponentFactory.create_event_detector()` — instantiates sport-specific detector
+- `Pipeline.__init__` — optional `generate_highlights` flag; auto-loads homography from config keypoints
+- `Pipeline.run()` — detects events per frame, adds to `Match.events`
+- `Pipeline.main()` — `--highlights` CLI flag for highlight reel generation
+- `ZoneManager` — extended to handle both polygon zones and point zones (basketball hoops)
+
+### 4.4 Tests — 13 new tests (29 total, all passing)
+
+| File | Tests | Coverage |
+|------|-------|----------|
+| `test_events.py` | 7 | Factory registry, sport selection, football no-op, basketball ball detection, rugby IMU impacts, reset |
+| `test_highlights.py` | 6 | Goal scoring, sorted events, window overlap filtering, max clips limit, clip extraction fallback, custom weights |
+
+### 4.5 New Dependencies
+- `librosa>=0.10` — audio spike detection (already in requirements.txt)
+- `moviepy>=1.0` — clip extraction fallback (already in requirements.txt)
 
 ---
 
