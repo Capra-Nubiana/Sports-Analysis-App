@@ -8,7 +8,7 @@ A comprehensive reference for the Sports Analysis App — its architecture, comp
 2. [Architecture Principles](#2-architecture-principles)
 3. [Phase 1 — Core Pipeline + Wearables + Laser (Complete)](#3-phase-1--core-pipeline--wearables--laser-complete)
 4. [Phase 2 — Event Detection & Highlights (Complete)](#4-phase-2--event-detection--highlights-complete)
-5. [Phase 3 — Dashboard & API (Planned)](#5-phase-3--dashboard--api-planned)
+5. [Phase 3 — API & Analytics (Complete)](#5-phase-3--api--analytics-complete)
 6. [Phase 4 — Optimization (Planned)](#6-phase-4--optimization-planned)
 7. [Setup & Verification](#7-setup--verification)
 
@@ -267,14 +267,61 @@ Status: **Complete** ✓
 
 ---
 
-## 5. Phase 3 — Dashboard & API (Planned)
+## 5. Phase 3 — API & Analytics (Complete)
 
-Status: **Not started** — skeleton directories exist (`src/api/`, `src/analytics/`)
+Status: **Complete** ✓
 
-**Planned work:**
-- FastAPI REST + WebSocket backend for real-time match data
-- React Vite dashboard for live tracking visualization
-- Post-match analytics reports (player heatmaps, distance covered, sprint stats)
+### 5.1 REST API (`src/api/`)
+
+| File | Description |
+|------|-------------|
+| `main.py` | FastAPI app factory, WebSocket `/ws/tracking` endpoint, CORS middleware |
+| `app_state.py` | Shared `AppState` container (match data, WebSocket connections, sport config) |
+| `routes/matches.py` | List/create/get matches, get match events |
+| `routes/events.py` | List/get/add events |
+| `routes/players.py` | List/get players, player heatmap data |
+| `routes/highlights.py` | List highlight clips, generate reel, get highlight-scored timeline |
+| `routes/websocket.py` | WebSocket route re-export |
+
+**API Endpoints:**
+- `GET /api/v1/matches/` — List saved timelines
+- `POST /api/v1/matches/` — Register a Match object
+- `GET /api/v1/matches/{id}` — Get match timeline JSON
+- `GET /api/v1/matches/{id}/events` — Get match events
+- `GET /api/v1/events/` — Get in-memory events
+- `GET /api/v1/events/{id}` — Get specific event
+- `POST /api/v1/events/` — Add event to current match
+- `GET /api/v1/players/` — List tracked players
+- `GET /api/v1/players/{id}` — Get player details
+- `GET /api/v1/players/{id}/heatmap` — Player position heatmap
+- `GET /api/v1/highlights/` — List highlight clips
+- `GET /api/v1/highlights/reel` — Generate/retrieve highlight reel
+- `GET /api/v1/highlights/timeline/{id}` — Get scored highlight windows
+- `WS /ws/tracking` — Real-time tracking data stream
+
+### 5.2 Analytics (`src/analytics/`)
+
+| File | Description |
+|------|-------------|
+| `heatmap.py` | `HeatmapGenerator` — 2D position density heatmaps via numpy histogram2d |
+| `distance.py` | `DistanceAnalyzer` — total distance, high-speed distance, avg/max speed |
+| `sprint.py` | `SprintDetector` — sprint burst detection (speed threshold + min duration) |
+| `report.py` | `AnalyticsReport` — aggregates all analytics into per-player reports |
+
+### 5.3 CLI Usage
+
+```bash
+# Start API server
+uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000
+
+# Or via project script
+python -m src.api.main
+```
+
+### 5.4 New Dependencies
+- `fastapi>=0.110` — web framework
+- `uvicorn>=0.29` — ASGI server
+- `websockets>=12.0` — WebSocket support
 
 ---
 
@@ -320,6 +367,9 @@ python -c "from src.events.factory import EventDetectorFactory; print(EventDetec
 python -c "from src.highlights.scorer import HighlightScorer; print(HighlightScorer())"
 python -c "from src.highlights.ffmpeg_extractor import ClipExtractor; print(ClipExtractor('test.mp4'))"
 python -c "from src.highlights.audio_analyzer import AudioAnalyzer; print(AudioAnalyzer())"
+python -c "from src.api.main import app; print(app.title)"
+python -c "from src.analytics.heatmap import HeatmapGenerator; print(HeatmapGenerator())"
+python -c "from src.analytics.distance import DistanceAnalyzer; print(DistanceAnalyzer())"
 ```
 
 **Verification status (Phase 1):**
@@ -348,6 +398,15 @@ python -c "from src.highlights.audio_analyzer import AudioAnalyzer; print(AudioA
 | CI: gitleaks | ✓ Clean (direct gitleaks detect) |
 | CI: pytest (GitHub Actions) | ✓ All passing |
 | CI: branch routing | ✓ Pass (feature/* → develop only) |
+
+**Verification status (Phase 3):**
+
+| Check | Result |
+|-------|--------|
+| pytest (44 tests) | ✓ All passing |
+| ruff check | ✓ Clean (72 files) |
+| black --check | ✓ Clean |
+| mypy src/ | ✓ 0 errors (58 files) |
 
 ### CLI Usage
 
