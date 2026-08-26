@@ -41,10 +41,10 @@ pyyaml>=6.0.0
 moviepy>=1.0.0             # Video editing & highlight assembly
 librosa>=0.10.0            # Audio analysis (crowd noise detection)
 
-# --- API (Phase 3, optional) ---
-# fastapi>=0.100.0
-# uvicorn>=0.23.0
-# websockets>=11.0
+# --- API (Phase 3) ---
+fastapi>=0.110.0
+uvicorn>=0.29.0
+websockets>=12.0
 
 # --- Dev Tools ---
 pytest>=7.0.0

@@ -80,6 +80,7 @@ gpu = [
 [project.scripts]
 sport-analyze = "src.core.pipeline:main"
 download-models = "scripts.download_models:main"
+run-api = "src.api.main:create_app"
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -100,6 +101,8 @@ ignore = ["COM812"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "PT015", "B011", "B905", "S310"]
+"src/api/routes/**" = ["F401", "E501"]
+"src/api/main.py" = ["E501", "F811"]
 
 [tool.black]
 line-length = 100
