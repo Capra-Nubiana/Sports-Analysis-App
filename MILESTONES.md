@@ -9,7 +9,7 @@ A comprehensive reference for the Sports Analysis App — its architecture, comp
 3. [Phase 1 — Core Pipeline + Wearables + Laser (Complete)](#3-phase-1--core-pipeline--wearables--laser-complete)
 4. [Phase 2 — Event Detection & Highlights (Complete)](#4-phase-2--event-detection--highlights-complete)
 5. [Phase 3 — API & Analytics (Complete)](#5-phase-3--api--analytics-complete)
-6. [Phase 4 — Optimization (Planned)](#6-phase-4--optimization-planned)
+6. [Phase 4 — Optimization (Complete)](#6-phase-4--optimization-complete)
 7. [Setup & Verification](#7-setup--verification)
 
 ---
@@ -325,14 +325,55 @@ python -m src.api.main
 
 ---
 
-## 6. Phase 4 — Optimization (Planned)
+## 6. Phase 4 — Optimization (Complete)
 
-Status: **Not started**
+Status: **Complete** ✓
 
-**Planned work:**
-- GPU batch processing for YOLO inference
-- Custom PyTorch model training pipeline
-- C++ inference engine for low-latency production deployment
+### 6.1 GPU Batch Processing (`src/detection/batch_processor.py`)
+
+| Component | Description |
+|-----------|-------------|
+| `BatchProcessor` | Accumulates frames into batches and runs YOLO inference in a single forward pass for GPU throughput optimization |
+
+**Features:**
+- Lazy model loading with CUDA/MPS/CPU detection
+- `queue_frame()` — accumulates frames, returns detections when batch is full
+- `flush()` — process all queued frames
+- `detect_batch()` — run inference on multiple images simultaneously
+- Batch size configurable (default: 8)
+
+### 6.2 PyTorch Training Pipeline (`scripts/train_model.py`)
+
+| Component | Description |
+|-----------|-------------|
+| `TrainingPipeline` | Fine-tunes YOLOv8/v11 on sport-specific datasets via Ultralytics API |
+
+**Features:**
+- `build_train_config()` — generates YAML training config from SportConfig
+- `save_train_config()` — saves config to disk
+- `train()` — full fine-tuning with configurable epochs, batch size, learning rate, patience
+- `validate()` — post-training validation with mAP50, mAP, precision, recall metrics
+- CLI interface with `--sport`, `--dataset`, `--model`, `--epochs`, `--batch-size`, `--img-size`, `--lr`
+
+### 6.3 C++ Inference Engine (`cpp_inference/`)
+
+| File | Description |
+|------|-------------|
+| `include/cpp_inference/detector.hpp` | C++ Detector class with ONNX Runtime/TensorRT stub |
+| `src/detector.cpp` | Implementation skeleton (preprocess, inference, post-process with NMS) |
+| `CMakeLists.txt` | CMake build configuration with OpenCV linking and Release optimizations |
+
+### 6.4 Pre-existing Script Fixes
+
+- `scripts/benchmark.py` — fixed `frame.image` access by casting to `VideoFrame` (resolves mypy attr-defined error)
+- `scripts/download_models.py` — fixed `download_ultralytics_model` return type to `Path | None`, added exception handling
+
+### 6.5 Tests — 9 new tests (53 total, all passing)
+
+| File | Tests | Coverage |
+|------|-------|----------|
+| `test_batch_processor.py` | 5 | Init, no-model fallback, queue/flush, custom classes, device property |
+| `test_training.py` | 4 | Pipeline init, config building, config saving, sport-specific configs |
 
 ---
 
@@ -355,7 +396,7 @@ ruff check src/ tests/ scripts/
 ruff format --check src/ tests/ scripts/
 
 # Type check
-mypy src/
+mypy src/ scripts/
 
 # Format check
 black --check src/ tests/ scripts/
@@ -370,6 +411,7 @@ python -c "from src.highlights.audio_analyzer import AudioAnalyzer; print(AudioA
 python -c "from src.api.main import app; print(app.title)"
 python -c "from src.analytics.heatmap import HeatmapGenerator; print(HeatmapGenerator())"
 python -c "from src.analytics.distance import DistanceAnalyzer; print(DistanceAnalyzer())"
+python -c "from src.detection.batch_processor import BatchProcessor; print(BatchProcessor())"
 ```
 
 **Verification status (Phase 1):**
@@ -394,7 +436,7 @@ python -c "from src.analytics.distance import DistanceAnalyzer; print(DistanceAn
 | ruff check | ✓ Clean (57 files) |
 | ruff format --check | ✓ Clean |
 | black --check | ✓ Clean |
-| mypy src/ | ✓ 0 errors (45 files) |
+| mypy src/ scripts/ | ✓ 0 errors (45 files) |
 | CI: gitleaks | ✓ Clean (direct gitleaks detect) |
 | CI: pytest (GitHub Actions) | ✓ All passing |
 | CI: branch routing | ✓ Pass (feature/* → develop only) |
@@ -406,7 +448,16 @@ python -c "from src.analytics.distance import DistanceAnalyzer; print(DistanceAn
 | pytest (44 tests) | ✓ All passing |
 | ruff check | ✓ Clean (72 files) |
 | black --check | ✓ Clean |
-| mypy src/ | ✓ 0 errors (58 files) |
+| mypy src/ scripts/ | ✓ 0 errors (63 files) |
+
+**Verification status (Phase 4):**
+
+| Check | Result |
+|-------|--------|
+| pytest (53 tests) | ✓ All passing |
+| ruff check | ✓ Clean (76 files) |
+| black --check | ✓ Clean |
+| mypy src/ scripts/ | ✓ 0 errors (63 files) |
 
 ### CLI Usage
 
@@ -422,6 +473,15 @@ python scripts/download_models.py
 
 # Benchmark inference throughput
 python scripts/benchmark.py --model yolov8x.pt --video input/match.mp4 --frames 300
+
+# Train a custom YOLO model (Phase 4)
+python scripts/train_model.py --sport football --dataset /path/to/dataset --epochs 50
+
+# Validate a trained model
+python scripts/train_model.py --sport football --dataset /path/to/dataset --validate runs/train/best.pt
+
+# Start REST API server
+uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ---

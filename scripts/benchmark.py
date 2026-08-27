@@ -60,9 +60,14 @@ class Benchmark:
         frame_count = 0
         start = time.perf_counter()
         try:
-            for frame in video_source.iter_frames():
+            from typing import cast
+
+            from src.ingest.video_source import VideoFrame
+
+            for raw_frame in video_source.iter_frames():
                 if frame_count >= max_frames:
                     break
+                frame = cast(VideoFrame, raw_frame)
                 detections = detector.detect(frame.image)
                 _ = tracker.update(detections, frame.image)
                 frame_count += 1

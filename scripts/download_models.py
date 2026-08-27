@@ -39,7 +39,7 @@ def download_file(url: str, dest: Path) -> bool:
         return False
 
 
-def download_ultralytics_model(model_name: str = "yolov8x") -> Path:
+def download_ultralytics_model(model_name: str = "yolov8x") -> Path | None:
     """Use Ultralytics built-in downloader if available."""
     try:
         from ultralytics import YOLO
@@ -48,6 +48,9 @@ def download_ultralytics_model(model_name: str = "yolov8x") -> Path:
         return Path(model.model_path)
     except ImportError:
         print("ultralytics not installed; falling back to direct download.")
+        return None
+    except Exception as e:
+        print(f"Model download failed: {e}")
         return None
 
 
