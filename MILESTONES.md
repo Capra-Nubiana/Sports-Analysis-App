@@ -477,6 +477,7 @@ python -c "from src.api.main import app; print(app.title)"
 python -c "from src.analytics.heatmap import HeatmapGenerator; print(HeatmapGenerator())"
 python -c "from src.analytics.distance import DistanceAnalyzer; print(DistanceAnalyzer())"
 python -c "from src.detection.batch_processor import BatchProcessor; print(BatchProcessor())"
+python -c "from src.detection.batch_processor import BatchProcessor; print(BatchProcessor())"
 ```
 
 **Verification status (Phase 1):**

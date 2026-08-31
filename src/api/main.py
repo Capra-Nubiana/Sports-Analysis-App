@@ -39,3 +39,9 @@ def create_app(sport_name: str = "football", config_dir: str = "config") -> Fast
     """Application factory that configures sport-specific settings."""
     app.state.store.sport_config = SportConfig(sport_name, config_dir)
     return app
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run("src.api.main:app", host="127.0.0.1", port=8000, reload=True)  # noqa: S104
