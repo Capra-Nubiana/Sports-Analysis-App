@@ -6,31 +6,33 @@ from fastapi.testclient import TestClient
 
 from src.api.main import app
 
+API = "/api/v1"
+
 
 def test_api_health():
     client = TestClient(app)
-    resp = client.get("/players/")
+    resp = client.get(f"{API}/players/")
     assert resp.status_code == 200
     assert isinstance(resp.json(), list)
 
 
 def test_list_matches_empty():
     client = TestClient(app)
-    resp = client.get("/matches/")
+    resp = client.get(f"{API}/matches/")
     assert resp.status_code == 200
     assert isinstance(resp.json(), list)
 
 
 def test_get_nonexistent_match():
     client = TestClient(app)
-    resp = client.get("/matches/nonexistent")
+    resp = client.get(f"{API}/matches/nonexistent")
     assert resp.status_code == 404
 
 
 def test_add_event_no_match():
     client = TestClient(app)
     resp = client.post(
-        "/events/",
+        f"{API}/events/",
         json={
             "event_type": "goal",
             "timestamp": 10.0,
@@ -46,7 +48,7 @@ def test_add_event_no_match():
 def test_create_match():
     client = TestClient(app)
     resp = client.post(
-        "/matches/",
+        f"{API}/matches/",
         json={
             "sport_type": "football",
             "start_time": "2026-01-01T00:00:00Z",
@@ -60,7 +62,7 @@ def test_create_match():
 
 def test_list_highlights():
     client = TestClient(app)
-    resp = client.get("/highlights/")
+    resp = client.get(f"{API}/highlights/")
     assert resp.status_code == 200
     assert isinstance(resp.json(), list)
 
@@ -68,7 +70,7 @@ def test_list_highlights():
 def test_event_endpoints_after_match():
     client = TestClient(app)
     client.post(
-        "/matches/",
+        f"{API}/matches/",
         json={
             "sport_type": "football",
             "start_time": "2026-01-01T00:00:00Z",
@@ -77,7 +79,7 @@ def test_event_endpoints_after_match():
         },
     )
     resp = client.post(
-        "/events/",
+        f"{API}/events/",
         json={
             "event_type": "goal",
             "timestamp": 45.0,
@@ -90,6 +92,6 @@ def test_event_endpoints_after_match():
     assert resp.status_code == 200
     assert resp.json()["status"] == "added"
 
-    resp = client.get("/events/")
+    resp = client.get(f"{API}/events/")
     assert resp.status_code == 200
     assert len(resp.json()) == 1
