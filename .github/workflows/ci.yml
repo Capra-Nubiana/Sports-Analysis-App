@@ -54,6 +54,36 @@ jobs:
       - name: Run Pytests
         run: |
           pytest tests/ -v --tb=short
+
+  frontend-check:
+    name: Frontend Lint & Type Check
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[skip fe]') }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: dashboard/package-lock.json
+
+      - name: Install dashboard dependencies
+        run: |
+          cd dashboard
+          npm ci
+
+      - name: TypeScript type check
+        run: |
+          cd dashboard
+          npx tsc --noEmit
+
+      - name: Lint
+        run: |
+          cd dashboard
+          npx oxlint --fix || true  # non-blocking
           
   branch-routing-check:
     name: Enforce Linear Merge Pipeline

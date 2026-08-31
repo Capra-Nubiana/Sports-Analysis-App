@@ -36,6 +36,15 @@ data/
 .DS_Store
 Thumbs.db
 
+# Node.js
+node_modules/
+dashboard/node_modules/
+dashboard/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
 # Test
 .pytest_cache/
 .coverage

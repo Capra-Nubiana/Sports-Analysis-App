@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "ref": "true",
+    "noEmit": true,
+    "allowJs": false,
+    "emitDecoratorMetadata": true,
+    "module": {
+      "value": "ESNext",
+      "tsBuildInfoFile": false
+    },
+    "moduleResolution": {
+      "value": "Node",
+      "tsBuildInfoFile": false
+    },
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src"]
+}

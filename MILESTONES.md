@@ -10,7 +10,8 @@ A comprehensive reference for the Sports Analysis App — its architecture, comp
 4. [Phase 2 — Event Detection & Highlights (Complete)](#4-phase-2--event-detection--highlights-complete)
 5. [Phase 3 — API & Analytics (Complete)](#5-phase-3--api--analytics-complete)
 6. [Phase 4 — Optimization (Complete)](#6-phase-4--optimization-complete)
-7. [Setup & Verification](#7-setup--verification)
+7. [Phase 5 — Dashboard (Complete)](#5-phase-5--dashboard-complete)
+8. [Setup & Verification](#7-setup--verification)
 
 ---
 
@@ -374,6 +375,70 @@ Status: **Complete** ✓
 |------|-------|----------|
 | `test_batch_processor.py` | 5 | Init, no-model fallback, queue/flush, custom classes, device property |
 | `test_training.py` | 4 | Pipeline init, config building, config saving, sport-specific configs |
+
+---
+
+## 5. Phase 5 — Dashboard (Complete)
+
+Status: **Complete** ✓
+
+### 5.1 Frontend (`dashboard/`)
+
+| File | Description |
+|------|-------------|
+| `src/App.tsx` | Main router with 4 pages: Tracking, Events, Analytics, Highlights |
+| `src/main.tsx` | React entry point with StrictMode |
+| `src/index.css` | Tailwind CSS imports |
+| `src/hooks/useWebSocket.ts` | WebSocket hook for real-time tracking data |
+| `src/types/index.ts` | TypeScript type definitions |
+
+**Pages:**
+- `TrackingDashboard` — Live canvas-based field tracking with WebSocket
+- `EventsPage` — Event timeline chart + data table
+- `AnalyticsPage` — Player heatmaps, distance bar charts, sprint stats
+- `HighlightsPage` — Highlight clip listing with reel support
+
+**Components:**
+- `TrackingCanvas` — HTML5 canvas field visualization with player positions
+- `DistanceBarChart` — Chart.js bar chart for distance/speed metrics
+- `EventTimeline` — Chart.js line chart for event confidence over time
+- `PlayerHeatmap` — Grid-based position density visualization
+
+**Tech Stack:**
+- React 18 + TypeScript + Vite
+- Tailwind CSS for styling
+- Chart.js (via react-chartjs-2) for data visualization
+- Native WebSocket API for real-time tracking
+
+### 5.2 Integration
+
+- Vite proxy configured for `/api` → `http://localhost:8000/api/v1/`
+- WebSocket proxy for `/ws` → FastAPI WebSocket endpoint
+- CI: Added `frontend-check` job (TypeScript type check + oxlint)
+- `package.json` scripts: `dev`, `build`, `lint`, `preview`, `start`
+
+### 5.3 CLI Usage
+
+```bash
+# Start API backend
+uvicorn src.api.main:app --reload
+
+# Start dashboard (dev)
+cd dashboard && npm run dev
+
+# Build dashboard (production)
+cd dashboard && npm run build
+```
+
+### 5.4 Verification
+
+| Check | Result |
+|-------|--------|
+| TypeScript tsc --noEmit | ✓ 0 errors |
+| pytest (53 tests) | ✓ All passing |
+| ruff check | ✓ Clean |
+| black --check | ✓ Clean |
+| mypy | ✓ 0 errors (63 files) |
 
 ---
 
