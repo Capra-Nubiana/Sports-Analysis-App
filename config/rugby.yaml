@@ -17,6 +17,16 @@ spatial:
     twenty_two_home: [[0, 0], [22, 0], [22, 70], [0, 70]]
     twenty_two_away: [[78, 0], [100, 0], [100, 70], [78, 70]]
 
+# --- Detection Pipeline ---
+detection:
+  model_path: "models/rugby-v1.onnx"
+  confidence_threshold: 0.35
+  nms_threshold: 0.5
+  classes:
+    - 0  # ball
+    - 1  # player
+    - 2  # referee
+
 # --- Event Detection Rules ---
 events:
   try_scored:
