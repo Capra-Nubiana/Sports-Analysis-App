@@ -17,25 +17,30 @@ export default function TrackingDashboard() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Live Tracking</h1>
-        <div className="flex items-center gap-3">
+    <div className="space-y-8 animate-fade-in">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+            Live Tracking
+          </h1>
+          <p className="mt-2 text-slate-400">Real-time object detection and spatial tracking</p>
+        </div>
+        <div className="flex items-center gap-4">
           <span
-            className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
-              connected ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-            }`}
+            className={`inline-flex items-center rounded-full px-4 py-1.5 text-sm font-medium border shadow-[0_0_10px_rgba(3,179,179,0.2)] ${connected
+                ? "bg-primary-500/10 text-primary-300 border-primary-500/30"
+                : "bg-rose-500/10 text-rose-300 border-rose-500/30"
+              }`}
           >
             <span
-              className={`mr-2 h-2 w-2 rounded-full ${
-                connected ? "bg-green-500" : "bg-red-500"
-              }`}
+              className={`mr-2 h-2.5 w-2.5 rounded-full ${connected ? "bg-primary-400 animate-pulse" : "bg-rose-500"
+                }`}
             />
             {connected ? "Connected" : "Disconnected"}
           </span>
           <button
             onClick={handleSendPing}
-            className="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700"
+            className="rounded-lg bg-slate-800 border border-slate-700 px-5 py-2 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/50"
           >
             Send Ping
           </button>
@@ -43,26 +48,30 @@ export default function TrackingDashboard() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <h3 className="text-sm font-medium text-gray-500">Tracked Players</h3>
-          <p className="text-3xl font-bold text-gray-900">{players.length}</p>
+        <div className="glass-card rounded-2xl p-6">
+          <h3 className="text-sm font-medium text-slate-400 mb-2 uppercase tracking-wider">Tracked Players</h3>
+          <p className="text-4xl font-bold text-white glow-text">{players.length}</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <h3 className="text-sm font-medium text-gray-500">Teams</h3>
-          <p className="text-3xl font-bold text-gray-900">
+        <div className="glass-card rounded-2xl p-6">
+          <h3 className="text-sm font-medium text-slate-400 mb-2 uppercase tracking-wider">Active Teams</h3>
+          <p className="text-4xl font-bold text-white glow-text">
             {new Set(players.map((p) => p.teamId)).size}
           </p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <h3 className="text-sm font-medium text-gray-500">Connection</h3>
-          <p className="text-3xl font-bold text-gray-900">
-            {connected ? "Online" : "Offline"}
+        <div className="glass-card rounded-2xl p-6 flex flex-col justify-end">
+          <h3 className="text-sm font-medium text-slate-400 mb-2 uppercase tracking-wider">API Connection</h3>
+          <p className={`text-2xl font-bold ${connected ? "text-primary-400" : "text-slate-500"}`}>
+            {connected ? "Online Stream" : "Offline"}
           </p>
         </div>
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
-        <TrackingCanvas width={800} height={450} players={players} />
+      <div className="glass-card rounded-2xl p-6 overflow-hidden relative group">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-transparent pointer-events-none" />
+        <h3 className="text-sm font-medium text-slate-400 mb-6 uppercase tracking-wider">Spatial Visualization</h3>
+        <div className="flex justify-center border border-slate-800 rounded-xl overflow-hidden bg-slate-950 p-4">
+          <TrackingCanvas width={900} height={500} players={players} />
+        </div>
       </div>
     </div>
   )

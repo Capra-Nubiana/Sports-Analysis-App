@@ -95,3 +95,42 @@ def test_event_endpoints_after_match():
     resp = client.get(f"{API}/events/")
     assert resp.status_code == 200
     assert len(resp.json()) == 1
+
+
+def test_video_upload_and_analyze():
+    client = TestClient(app)
+
+    # 1. Upload video
+    # We simulate a file upload with multipart/form-data
+    file_content = b"fake video content"
+    files = {"file": ("test_vid.mp4", file_content, "video/mp4")}
+    resp = client.post(f"{API}/videos/upload", files=files)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "id" in data
+    assert data["filename"] == "test_vid.mp4"
+    assert data["size_bytes"] == len(file_content)
+    video_id = data["id"]
+
+    # 2. List videos
+    resp = client.get(f"{API}/videos/")
+    assert resp.status_code == 200
+    listed = resp.json()
+    assert len(listed) >= 1
+    assert any(v["id"] == video_id for v in listed)
+
+    # 3. Analyze video
+    resp = client.post(f"{API}/videos/{video_id}/analyze?sport=rugby")
+    assert resp.status_code == 200
+    analyze_data = resp.json()
+    assert analyze_data["status"] == "queued"
+    assert "job_id" in analyze_data
+
+    # 4. Get background job status
+    resp = client.get(f"{API}/videos/{video_id}/status")
+    assert resp.status_code == 200
+    status_data = resp.json()
+    assert status_data["video_id"] == video_id
+
+    # Not testing the actual pipeline background execution here since
+    # that would block/take time and require a real video.

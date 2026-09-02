@@ -24,6 +24,9 @@ class AppState:
         self.active_connections: list[Any] = []
         self.sport_config: SportConfig | None = None
         self.output_dir = Path("output")
+        self.uploads_dir = Path("uploads")
+        self.uploaded_videos: dict[str, dict[str, Any]] = {}
+        self.jobs: dict[str, dict[str, Any]] = {}
 
 
 app = FastAPI(
