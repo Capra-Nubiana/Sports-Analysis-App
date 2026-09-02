@@ -398,6 +398,26 @@ Status: **Complete** ✓
 - `AnalyticsPage` — Player heatmaps, distance bar charts, sprint stats
 - `HighlightsPage` — Highlight clip listing with reel support
 
+---
+
+## 6. Phase 6 — Upload & Dashboard Redesign (Complete)
+
+Status: **Complete** ✓
+
+The platform was enhanced with video upload capabilities and a modern frontend overhaul.
+
+### 6.1 Backend API enhancements (`src/api/routes/videos.py`)
+- `POST /api/v1/videos/upload` — Multi-part streaming upload (2GB limit)
+- `POST /api/v1/videos/{id}/analyze` — Background daemon thread triggering `Pipeline.run()`
+- `GET /api/v1/videos/` and `/status` — Asynchronous job status tracking via `AppState.jobs`
+
+### 6.2 Modern Dashboard Overhaul (`dashboard/`)
+Upgraded standard React/Tailwind elements to a modern dark-mode aesthetic.
+- **Glassmorphism**: Integrated backdrop filters and gradient meshes for panels and cards.
+- **Navigation**: Migrated from top navigation to a sticky side-nav layout.
+- **`VideoUploadPage`**: New drag-and-drop file upload zone with format validation.
+- **Theming**: Migrated default font to Inter, utilized slate-950 and primary teal/cyan colorways, updated Chart.js default colors.
+
 **Components:**
 - `TrackingCanvas` — HTML5 canvas field visualization with player positions
 - `DistanceBarChart` — Chart.js bar chart for distance/speed metrics
