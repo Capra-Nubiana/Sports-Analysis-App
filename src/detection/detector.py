@@ -2,6 +2,10 @@
 YOLO Object Detection Wrapper
 Implements Detector protocol.
 Supports both PyTorch (.pt) and ONNX (.onnx) backends.
+
+Copyright (c) 2026 Philip Kwimba. All rights reserved.
+Licensed under AGPLv3 (see LICENSE).
+Model weights are proprietary — do not redistribute.
 """
 
 from collections.abc import Sequence

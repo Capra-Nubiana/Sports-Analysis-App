@@ -3,6 +3,9 @@ FastAPI application factory.
 
 Creates and configures the ASGI application with all routes,
 CORS middleware, and WebSocket support for real-time tracking.
+
+Copyright (c) 2026 Philip Kwimba. All rights reserved.
+Licensed under AGPLv3 (see LICENSE).
 """
 
 from fastapi import FastAPI, WebSocket

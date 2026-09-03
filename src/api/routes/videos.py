@@ -1,4 +1,9 @@
-"""Video upload and analysis REST endpoints."""
+"""Video upload and analysis REST endpoints.
+
+Copyright (c) 2026 Philip Kwimba. All rights reserved.
+Licensed under AGPLv3 (see LICENSE).
+"""
+
 
 import threading
 import uuid
