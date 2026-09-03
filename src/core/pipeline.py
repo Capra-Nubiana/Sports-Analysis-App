@@ -1,6 +1,9 @@
 """
 Main Analysis Pipeline Orchestrator
 Depends entirely on abstractions (DataSource, Detector, Tracker).
+
+Copyright (c) 2026 Philip Kwimba. All rights reserved.
+Licensed under AGPLv3 (see LICENSE).
 """
 
 import argparse

@@ -3,6 +3,9 @@ Shared application state and utilities for the API.
 
 Separated from main.py to avoid circular imports between
 route modules and the FastAPI app factory.
+
+Copyright (c) 2026 Philip Kwimba. All rights reserved.
+Licensed under AGPLv3 (see LICENSE).
 """
 
 import json
@@ -13,6 +16,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.core.models import Match
+from src.core.payments.models import Customer, Transaction
 from src.core.sport_config import SportConfig
 
 
@@ -24,6 +28,13 @@ class AppState:
         self.active_connections: list[Any] = []
         self.sport_config: SportConfig | None = None
         self.output_dir = Path("output")
+        self.uploads_dir = Path("uploads")
+        self.uploaded_videos: dict[str, dict[str, Any]] = {}
+        self.jobs: dict[str, dict[str, Any]] = {}
+
+        # In-memory mock database for payments and customers
+        self.customers: dict[str, Customer] = {}
+        self.transactions: dict[str, Transaction] = {}
 
 
 app = FastAPI(

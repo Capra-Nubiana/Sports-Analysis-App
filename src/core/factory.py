@@ -1,6 +1,9 @@
 """
 Dependency Injection Container / Factory
 Creates concrete implementations for protocols based on config.
+
+Copyright (c) 2026 Philip Kwimba. All rights reserved.
+Licensed under AGPLv3 (see LICENSE).
 """
 
 import importlib

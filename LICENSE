@@ -1,0 +1,28 @@
+AGPLv3 License
+
+Copyright (c) 2026 Philip Kwimba
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+Additional permission under the GNU Affero General Public License:
+If you modify the Program, your modified version must prominently
+offer all users interacting with it remotely through a computer
+network (if your version supports such interaction) an opportunity
+to receive the source code of your version by providing access
+to your source code through a network service.
+
+Commercial Licensing:
+YOLOv8 (used in this project) is licensed under AGPL-3.0 by Ultralytics.
+For commercial deployments, obtain a commercial license from Ultralytics:
+https://ultralytics.com/license

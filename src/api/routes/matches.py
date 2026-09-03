@@ -1,13 +1,20 @@
-"""Match-level REST endpoints."""
+"""Match-level REST endpoints.
+
+Copyright (c) 2026 Philip Kwimba. All rights reserved.
+Licensed under AGPLv3 (see LICENSE).
+"""
+
 
 import json
 from pathlib import Path
 from typing import Any, cast
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 from src.api.app_state import app
+from src.api.dependencies.rate_limiter import check_rate_limit
 from src.core.models import Match
+from src.core.payments.models import Customer
 
 router = APIRouter(prefix="/matches", tags=["matches"])
 
@@ -38,9 +45,13 @@ async def get_match(match_id: str) -> dict[str, Any]:
 
 
 @router.post("/", response_model=dict[str, str])
-async def create_match(match: Match) -> dict[str, str]:
+async def create_match(match: Match, customer: Customer = Depends(check_rate_limit)) -> dict[str, str]:  # noqa: B008, E501
     """Create/register a match object."""
     app.state.store.match_data = match
+
+    # Increment usage count for billing/limits
+    app.state.store.customers[customer.customer_id].matches_processed += 1
+
     return {"status": "created", "sport_type": str(match.sport_type)}
 
 

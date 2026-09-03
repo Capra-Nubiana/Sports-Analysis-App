@@ -3,18 +3,22 @@ FastAPI application factory.
 
 Creates and configures the ASGI application with all routes,
 CORS middleware, and WebSocket support for real-time tracking.
+
+Copyright (c) 2026 Philip Kwimba. All rights reserved.
+Licensed under AGPLv3 (see LICENSE).
 """
 
 from fastapi import FastAPI, WebSocket
 
 from src.api.app_state import app
-from src.api.routes import events, highlights, matches, players
+from src.api.routes import events, highlights, matches, players, videos
 from src.core.sport_config import SportConfig
 
 app.include_router(matches.router, prefix="/api/v1")
 app.include_router(events.router, prefix="/api/v1")
 app.include_router(players.router, prefix="/api/v1")
 app.include_router(highlights.router, prefix="/api/v1")
+app.include_router(videos.router, prefix="/api/v1")
 
 
 @app.websocket("/ws/tracking")

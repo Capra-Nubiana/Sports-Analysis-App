@@ -1,4 +1,9 @@
-"""Player REST endpoints."""
+"""Player REST endpoints.
+
+Copyright (c) 2026 Philip Kwimba. All rights reserved.
+Licensed under AGPLv3 (see LICENSE).
+"""
+
 
 from typing import Any
 

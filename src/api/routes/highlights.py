@@ -1,4 +1,9 @@
-"""Highlight REST endpoints."""
+"""Highlight REST endpoints.
+
+Copyright (c) 2026 Philip Kwimba. All rights reserved.
+Licensed under AGPLv3 (see LICENSE).
+"""
+
 
 from pathlib import Path
 from typing import Any
