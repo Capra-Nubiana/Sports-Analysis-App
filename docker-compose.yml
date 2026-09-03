@@ -10,8 +10,9 @@ services:
       POSTGRES_DB: sports_analysis
       POSTGRES_USER: sports_user
       POSTGRES_PASSWORD: dev_password
-    ports:
-      - "5432:5432"
+    # No port mapping — database is accessible only within
+    # the Docker internal network (db:5432) for security.
+    # Connect from host via:  docker exec -it <container> psql -U sports_user
 
   # ─────────────────────────────────────────────────────────────────────────────
   # API BACKEND
