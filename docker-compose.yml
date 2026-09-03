@@ -1,22 +1,9 @@
 services:
   # ─────────────────────────────────────────────────────────────────────────────
-  # DATABASE (local dev)
-  # ─────────────────────────────────────────────────────────────────────────────
-  db:
-    image: postgres:16-alpine
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: sports_analysis
-      POSTGRES_USER: sports_user
-      POSTGRES_PASSWORD: dev_password
-    # No port mapping — database is accessible only within
-    # the Docker internal network (db:5432) for security.
-    # Connect from host via:  docker exec -it <container> psql -U sports_user
-
-  # ─────────────────────────────────────────────────────────────────────────────
   # API BACKEND
   # ─────────────────────────────────────────────────────────────────────────────
+  # Database is Supabase PostgreSQL (not a local container).
+  # Supabase API creates/provisions the DB — no port conflict with any local DB.
   api:
     build: .
     command: .venv/bin/python -m src.api.main
@@ -24,14 +11,17 @@ services:
       - .:/app
       - /mnt/data/videos:/app/data/videos       # Local HDD media storage
       - /mnt/data/processed:/app/data/processed  # Processed outputs (GDPR: 90-day retention)
-      - ./models:/app/models                    # Model weights (not committed, loaded at runtime)
+      - ./models:/app/models                    # Model weights (loaded at runtime, not in repo)
     env_file: .env
     ports:
       - "8000:8000"
-    depends_on:
-      - db
     environment:
-      DATABASE_URL: postgresql://sports_user:dev_password@db:5432/sports_analysis
+      # Supabase connection (set via .env or Doppler)
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      ADMIN_EMAILS: ikambili34@gmail.com,ikambili34@live.com
+      STORAGE_PATH: /mnt/data/videos
+      RETENTION_DAYS: "90"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # DASHBOARD (React dev server)
@@ -64,6 +54,3 @@ services:
     depends_on:
       - dashboard
     command: [nginx-debug, '-g', 'daemon off;']
-
-volumes:
-  postgres_data:
