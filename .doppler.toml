@@ -1,0 +1,29 @@
+[cli]
+  # Doppler project for Sports Analysis App
+  # Secrets are synced to Render via render.yaml (sync: false)
+  project = "sports-analysis-app"
+
+[secrets]
+  # Required for JWT token signing
+  JWT_SECRET = { note = "32+ character random string for JWT signing" }
+  JWT_ISSUER = { note = "JWT issuer claim (e.g., sports-analysis-app)" }
+  JWT_AUDIENCE = { note = "JWT audience claim" }
+  
+  # Database (Supabase PostgreSQL)
+  DATABASE_URL = { note = "Supabase PostgreSQL connection string" }
+  DATABASE_USER = { note = "PostgreSQL username" }
+  DATABASE_PASSWORD = { note = "PostgreSQL password" }
+  
+  # Payment providers
+  STRIPE_SECRET_KEY = { note = "Stripe secret key for payment processing" }
+  MPESA_CONSUMER_KEY = { note = "Safaricom Daraja Consumer Key" }
+  MPESA_CONSUMER_SECRET = { note = "Safaricom Daraja Consumer Secret" }
+  MPESA_SHORTCODE = { note = "Safaricom shortcode" }
+  MPESA_PASSKEY = { note = "Safaricom Lipa Na Mpesa passkey" }
+  SERVER_BASE_URL = { note = "Public URL for webhook callbacks" }
+
+[env]
+  .local = { extends = "dev" }
+  dev = { name = "Development" }
+  staging = { name = "Staging" }
+  prod = { name = "Production" }

@@ -1,0 +1,102 @@
+services:
+  - type: web
+    name: sports-analysis-api-dev
+    runtime: docker
+    repo: https://github.com/Capra-Nubiana/Sports-Analysis-App
+    branch: develop
+    plan: free
+    region: oregon
+    
+    envVars:
+      # Database (managed via Supabase, sync=false → Doppler)
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_USER
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      
+      # Auth
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_ISSUER
+        sync: false
+      - key: JWT_AUDIENCE
+        sync: false
+      
+      # Admin / RBAC
+      - key: ADMIN_EMAILS
+        value: ikambili34@gmail.com,ikambili34@live.com
+      
+      # Storage (local HDD mount)
+      - key: STORAGE_PATH
+        value: /mnt/data/videos
+      - key: RETENTION_DAYS
+        value: "90"
+      
+      # External services
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: MPESA_CONSUMER_KEY
+        sync: false
+      - key: MPESA_CONSUMER_SECRET
+        sync: false
+      - key: MPESA_SHORTCODE
+        sync: false
+      - key: MPESA_PASSKEY
+        sync: false
+      - key: SERVER_BASE_URL
+        sync: false
+    
+    disk:
+      name: media-storage
+      mountPath: /mnt/data
+      sizeGb: 10  # Adjust based on video storage needs
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # PRODUCTION  (main branch)
+  # ─────────────────────────────────────────────────────────────────────────────
+  - type: web
+    name: sports-analysis-api-prod
+    runtime: docker
+    repo: https://github.com/Capra-Nubiana/Sports-Analysis-App
+    branch: main
+    plan: free
+    region: oregon
+    
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_USER
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_ISSUER
+        sync: false
+      - key: JWT_AUDIENCE
+        sync: false
+      - key: ADMIN_EMAILS
+        value: ikambili34@gmail.com,ikambili34@live.com
+      - key: STORAGE_PATH
+        value: /mnt/data/videos
+      - key: RETENTION_DAYS
+        value: "90"
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: MPESA_CONSUMER_KEY
+        sync: false
+      - key: MPESA_CONSUMER_SECRET
+        sync: false
+      - key: MPESA_SHORTCODE
+        sync: false
+      - key: MPESA_PASSKEY
+        sync: false
+      - key: SERVER_BASE_URL
+        sync: false
+    
+    disk:
+      name: media-storage-prod
+      mountPath: /mnt/data
+      sizeGb: 100  # Production: larger storage for match videos
