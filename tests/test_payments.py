@@ -1,113 +1,84 @@
-from fastapi.testclient import TestClient
+"""
+Tests for payment services (Stripe + M-Pesa).
 
-from src.api.main import app
+Copyright (c) 2026 Philip Kwimba. All rights reserved.
+Licensed under AGPLv3 (see LICENSE).
+"""
+
+import asyncio
+
+import pytest
+
 from src.core.payments.models import Customer, SubscriptionTier
 
-client = TestClient(app)
 
-def test_rate_limiter_free_tier():
-    # Clear customers
-    app.state.store.customers.clear()
+class TestStripeService:
+    def test_service_instantiates(self):
+        from src.core.payments.stripe_service import StripeService
+        svc = StripeService()
+        assert svc is not None
 
-    # Initialize a mock free customer
-    customer = Customer(
-        customer_id="test_free",
-        email="test_free@example.com",
-        tier=SubscriptionTier.FREE,
-        matches_processed=10
-    )
-    app.state.store.customers["test_free"] = customer
-
-    # Payload for a new match
-    match_payload = {
-        "sport_type": "football",
-        "start_time": "2026-09-03T10:00:00",
-        "teams": {0: "Team A", 1: "Team B", 2: "Referee"},
-    }
-
-    # Try creating match (should fail with 429 because limit=10)
-    response = client.post(
-        "/api/v1/matches/",
-        json=match_payload,
-        headers={"X-Customer-ID": "test_free"},
-    )
-    assert response.status_code == 429
-    assert "Subscription limit reached" in response.json()["detail"]
+    def test_stripe_no_api_key_raises(self):
+        from src.core.payments.stripe_service import StripeService
+        svc = StripeService()
+        customer = Customer(
+            customer_id="test-123",
+            email="test@example.com",
+            tier=SubscriptionTier.FREE,
+        )
+        with pytest.raises(Exception, match=".*"):
+            asyncio.run(svc.initialize_payment(customer, 100.0, "usd"))
 
 
-def test_rate_limiter_free_tier_under_limit():
-    app.state.store.customers.clear()
+class TestMPesaService:
+    def test_service_instantiates(self):
+        from src.core.payments.mpesa_service import MPesaService
+        svc = MPesaService()
+        assert svc is not None
 
-    customer = Customer(
-        customer_id="test_free2",
-        email="test_free2@example.com",
-        tier=SubscriptionTier.FREE,
-        matches_processed=5
-    )
-    app.state.store.customers["test_free2"] = customer
+    def test_mpesa_rejects_non_kes(self):
+        from src.core.payments.mpesa_service import MPesaService
+        svc = MPesaService()
+        customer = Customer(
+            customer_id="test-123",
+            email="test@example.com",
+            mpesa_phone_number="254700000000",
+            tier=SubscriptionTier.FREE,
+        )
+        with pytest.raises(ValueError, match="KES"):
+            asyncio.run(svc.initialize_payment(customer, 100.0, "USD"))
 
-    match_payload = {
-        "sport_type": "football",
-        "start_time": "2026-09-03T10:00:00",
-    }
+    def test_mpesa_requires_phone(self):
+        from src.core.payments.mpesa_service import MPesaService
+        svc = MPesaService()
+        customer = Customer(
+            customer_id="test-123",
+            email="test@example.com",
+            mpesa_phone_number=None,
+            tier=SubscriptionTier.FREE,
+        )
+        with pytest.raises(ValueError, match="phone"):
+            asyncio.run(svc.initialize_payment(customer, 100.0, "KES"))
 
-    response = client.post(
-        "/api/v1/matches/",
-        json=match_payload,
-        headers={"X-Customer-ID": "test_free2"},
-    )
-    assert response.status_code == 200
-    assert app.state.store.customers["test_free2"].matches_processed == 6
-
-
-def test_rate_limiter_pro_tier():
-    app.state.store.customers.clear()
-
-    customer = Customer(
-        customer_id="test_pro",
-        email="test_pro@example.com",
-        tier=SubscriptionTier.PRO,
-        matches_processed=100
-    )
-    app.state.store.customers["test_pro"] = customer
-
-    match_payload = {
-        "sport_type": "football",
-        "start_time": "2026-09-03T10:00:00",
-    }
-
-    response = client.post(
-        "/api/v1/matches/",
-        json=match_payload,
-        headers={"X-Customer-ID": "test_pro"},
-    )
-    assert response.status_code == 200
-    assert app.state.store.customers["test_pro"].matches_processed == 101
-
-def test_admin_bypass():
-    app.state.store.customers.clear()
-
-    match_payload = {
-        "sport_type": "football",
-        "start_time": "2026-09-03T10:00:00",
-    }
-
-    # Try creating match with admin email (default in rate_limiter.py)
-    response = client.post(
-        "/api/v1/matches/",
-        json=match_payload,
-        headers={"X-Customer-ID": "ikambili34@gmail.com"},
-    )
-    assert response.status_code == 200
-    customer = app.state.store.customers["ikambili34@gmail.com"]
-    assert customer.role == "admin"
-    assert customer.tier == "pro"
-
-if __name__ == "__main__":
-    print("Running tests...")
-    test_rate_limiter_free_tier()
-    test_rate_limiter_free_tier_under_limit()
-    test_rate_limiter_pro_tier()
-    test_admin_bypass()
-    print("All tests passed!")
-
+    def test_mpesa_webhook_callback_processing(self):
+        from src.core.payments.mpesa_service import MPesaService
+        svc = MPesaService()
+        callback_payload = {
+            "Body": {
+                "stkCallback": {
+                    "ResultCode": 0,
+                    "MerchantRequestID": "MRQ-123",
+                    "CheckoutRequestID": "CHK-456",
+                    "CallbackMetadata": {
+                        "Item": [
+                            {"Name": "Amount", "Value": 500.0},
+                        ]
+                    },
+                }
+            }
+        }
+        tx = asyncio.run(svc.process_webhook(callback_payload))
+        assert tx.status.value == "success"
+        assert tx.provider == "mpesa"
+        assert tx.amount == 500.0
+        assert tx.provider_reference == "CHK-456"

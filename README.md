@@ -100,18 +100,38 @@ supabase link --project-ref <your-ref>
 supabase db push
 ```
 
+### Authentication
+
+JWT-based auth following kioskpay-backend patterns:
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/v1/auth/register` | POST | Public | Email + password signup |
+| `/api/v1/auth/login` | POST | Public | Email + password login |
+| `/api/v1/auth/google` | POST | Public | Google OAuth sign-in/up |
+| `/api/v1/auth/refresh` | POST | Public | Refresh access token |
+| `/api/v1/auth/logout` | POST | JWT | Revoke refresh token |
+| `/api/v1/auth/forgot-password` | POST | Public | Send reset OTP |
+| `/api/v1/auth/reset-password` | POST | Public | Reset with OTP |
+| `/api/v1/auth/profile` | GET/PUT | JWT | Get/update profile |
+| `/api/v1/auth/password` | PUT | JWT | Change password |
+| `/api/v1/auth/account` | DELETE | JWT | Delete account |
+| `/api/v1/auth/biometric/*` | GET/POST | JWT | Challenge, register, login |
+
+**Token pairs:** Access (15 min) + Refresh (7 days). Refresh tokens are SHA-256 hashed before storage. Admins auto-promoted from `ADMIN_EMAILS` on every token issuance.
+
 ### Payments (Stripe + M-Pesa)
 
 | Provider | Required Env Vars | Notes |
 |----------|-------------------|-------|
-| **Stripe** | `STRIPE_SECRET_KEY` | Live/secret key from [Stripe Dashboard](https://dashboard.stripe.com/apikeys) |
-| **M-Pesa** | `MPESA_CONSUMER_KEY`, `MPESA_CONSUMER_SECRET`, `MPESA_SHORTCODE`, `MPESA_PASSKEY` | Safaricom [Daraja API](https://developer.safaricom.co.ke) credentials |
+| **Stripe** | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | [Stripe Dashboard](https://dashboard.stripe.com/apikeys) |
+| **M-Pesa** | `MPESA_CONSUMER_KEY`, `MPESA_CONSUMER_SECRET`, `MPESA_SHORTCODE`, `MPESA_PASSKEY` | [Safaricom Daraja API](https://developer.safaricom.co.ke) |
 
-**Status:** Mock implementations in Phase 5 (in progress). Payment routes not yet wired into the FastAPI backend. Set env vars in `.env` or Render dashboard (sync: false in `render.yaml`) for when routes are implemented.
+**Status:** Real implementations using `stripe` and `requests` SDKs.
 
-**Future webhook endpoints** (to be created in Phase 5):
-- Stripe: `https://<app>.onrender.com/api/payments/stripe/webhook`
-- M-Pesa: `https://<app>.onrender.com/api/payments/mpesa/callback`
+**Webhook endpoints:**
+- Stripe: `POST /api/v1/payments/stripe/webhook`
+- M-Pesa: `POST /api/v1/payments/mpesa/callback`
 
 ## Development Phases
 
@@ -124,7 +144,7 @@ supabase db push
 ## Development Workflow
 
 - **Branch strategy:** Always create a `feature/*` branch off `develop`
-- **Pre-commit hooks:** gitleaks (secret scan), pytest (58 tests), mypy, ruff
+- **Pre-commit hooks:** gitleaks (secret scan), pytest, mypy, ruff
 - **Lint/type checks:** `mypy src/` and `ruff check src/ tests/`
 - **Run API:** `.venv/bin/python -m src.api.main`
 - **Train model:** Use `dashboard/train_sports_model.ipynb` in Colab

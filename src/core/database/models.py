@@ -46,6 +46,14 @@ class Customer(Base):
         server_onupdate=text("NOW()"),
         nullable=False,
     )
+    password_hash: Mapped[str | None] = mapped_column(String, nullable=True)
+    google_id: Mapped[str | None] = mapped_column(String, unique=True, nullable=True)
+    full_name: Mapped[str | None] = mapped_column(String, nullable=True)
+    phone_number: Mapped[str | None] = mapped_column(String, nullable=True)
+    phone_hash: Mapped[str | None] = mapped_column(String, unique=True, nullable=True)
+    biometric_public_key: Mapped[str | None] = mapped_column(String, nullable=True)
+    email_verified: Mapped[bool] = mapped_column(default=False, nullable=False)
+    phone_verified: Mapped[bool] = mapped_column(default=False, nullable=False)
 
 
 class RefreshToken(Base):
@@ -65,6 +73,8 @@ class RefreshToken(Base):
     replaced_by: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("refresh_tokens.id"), nullable=True
     )
+    device_name: Mapped[str | None] = mapped_column(String, nullable=True)
+    token_type: Mapped[str] = mapped_column(default="refresh", nullable=False)
 
 
 class Match(Base):
