@@ -66,3 +66,4 @@ htmlcov/
 *.fit
 *.tcx
 *.gpx
+.env
