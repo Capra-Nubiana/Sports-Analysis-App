@@ -1,38 +1,61 @@
-# Supabase Database Setup Guide
+# Supabase Database Setup
 
-## 1. Get Your Project Details
-- Log into [supabase.com](https://supabase.com/dashboard)
-- Open project: `wkwgxhdtexjpqleuzyem`
-- Dashboard → Project Settings → Database
+## Project Details
+- **URL:** `https://wkwgxhdtexjpqleuzyem.supabase.co`
+- **Project Ref:** `wkwgxhdtexjpqleuzyem`
+- **Region:** EU West (Frankfurt)
 
-## 2. Two Connection Options
+## Connection
 
-### Option A: Direct Connection (port 5432)
-- Requires IP allowlisting
-- Go to: DATABASE → Connection params → Add networking (0.0.0.0/0)
-- Connection string format:
-  `postgresql+asyncpg://postgres:<password>@db.wkwgxhdtexjpqleuzyem.supabase.co:5432/postgres`
+### Option A: Transaction Pooler (recommended — no IP allowlist)
+No Supabase IP allowlist required. Works from any network.
 
-### Option B: Transaction Pooler (port 6543)
-- No IP allowlist required
-- Go to: DATABASE → Connection pooler → Copy URI
-- Connection string format:
-  `postgresql+asyncpg://postgres.wkwgxhdtexjpqleuzyem:<password>@aws-1-eu-west-3.pooler.supabase.co:6543/postgres`
+```
+postgresql+asyncpg://postgres.wkwgxhdtexjpqleuzyem:<password>@aws-1-eu-west-1.pooler.supabase.com:5432/postgres
+```
 
-## 3. Apply Schema
-- Go to: SQL Editor → New query
-- Paste contents of `infrastructure/supabase/schema.sql`
-- Run the query
+Get password: Supabase Dashboard → Project Settings → Database → Connection password.
 
-## 4. Verify
+### Option B: Direct Connection (requires IP allowlist)
+Add your IP to: Database → Connection params → Network restrictions.
+
+```
+postgresql+asyncpg://postgres:<password>@db.wkwgxhdtexjpqleuzyem.supabase.co:5432/postgres
+```
+
+## Apply Schema
+
+### CLI (preferred)
 ```bash
-# Check .env is set up
-cat .env | grep DATABASE_URL
+supabase link --project-ref wkwgxhdtexjpqleuzyem
+supabase db push
+```
 
-# Test connection
+### SQL Editor (alternative)
+1. Open SQL Editor in Supabase Dashboard.
+2. Paste `infrastructure/supabase/schema.sql`.
+3. Run query.
+
+## Tables (6)
+| Table | Purpose |
+|-------|---------|
+| `customers` | Users/auth, subscription tiers |
+| `refresh_tokens` | JWT refresh token tracking |
+| `matches` | Match metadata (sport, teams, status) |
+| `events` | Detected events (scrums, tackles, tries) |
+| `transactions` | Payment history (Stripe, M-Pesa) |
+| `match_tracks` | Player/ball tracking data per frame |
+
+All tables have RLS enabled with policies restricting access to the customer's own data.
+
+## Verify
+```bash
+# Test async connection
 python -c "
-import os; os.environ['DATABASE_URL']='postgresql+asyncpg://...'
-from src.core.database.database import get_session
-# Should not error
+import asyncio
+from sqlalchemy.ext.asyncio import create_async_engine
+e = create_async_engine('postgresql+asyncpg://postgres.wkwgxhdtexjpqleuzyem:<password>@aws-1-eu-west-1.pooler.supabase.com:5432/postgres')
+async with e.connect() as c:
+    print('Connected OK')
 "
 ```

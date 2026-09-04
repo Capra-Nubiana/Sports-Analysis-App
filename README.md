@@ -68,6 +68,51 @@ dashboard/
 └── train_sports_model.py     # CLI helper for training
 ```
 
+## Setup
+
+### Environment Variables
+
+Copy `.env.example` to `.env` and fill in your values:
+
+```bash
+cp .env.example .env
+```
+
+### Database (Supabase)
+
+The project uses Supabase PostgreSQL. Two connection methods:
+
+| Method | Host | Port | IP Allowlist |
+|--------|------|------|-------------|
+| Direct | `db.<ref>.supabase.co` | 5432 | Required |
+| Pooler | `aws-1-<region>.pooler.supabase.com` | 5432 | None |
+
+Set `DATABASE_URL` in `.env`:
+
+```bash
+DATABASE_URL=postgresql+asyncpg://postgres.<ref>:<password>@aws-1-<region>.pooler.supabase.com:5432/postgres
+```
+
+Apply the schema (first time only):
+
+```bash
+supabase link --project-ref <your-ref>
+supabase db push
+```
+
+### Payments (Stripe + M-Pesa)
+
+| Provider | Required Env Vars | Notes |
+|----------|-------------------|-------|
+| **Stripe** | `STRIPE_SECRET_KEY` | Live/secret key from [Stripe Dashboard](https://dashboard.stripe.com/apikeys) |
+| **M-Pesa** | `MPESA_CONSUMER_KEY`, `MPESA_CONSUMER_SECRET`, `MPESA_SHORTCODE`, `MPESA_PASSKEY` | Safaricom [Daraja API](https://developer.safaricom.co.ke) credentials |
+
+**Status:** Mock implementations in Phase 5 (in progress). Payment routes not yet wired into the FastAPI backend. Set env vars in `.env` or Render dashboard (sync: false in `render.yaml`) for when routes are implemented.
+
+**Future webhook endpoints** (to be created in Phase 5):
+- Stripe: `https://<app>.onrender.com/api/payments/stripe/webhook`
+- M-Pesa: `https://<app>.onrender.com/api/payments/mpesa/callback`
+
 ## Development Phases
 
 1. **Phase 1** — Core pipeline + wearable/laser ingestion
