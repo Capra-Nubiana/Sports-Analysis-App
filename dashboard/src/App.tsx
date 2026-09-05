@@ -1,6 +1,8 @@
-import { useState } from "react"
-import { BrowserRouter as Router, Routes, Route, Link, NavLink, useLocation } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from "react-router-dom"
+import { useAuth, AuthProvider } from "./contexts/AuthContext"
 
+import SignIn from "./pages/SignIn"
+import SignUp from "./pages/SignUp"
 import TrackingDashboard from "./pages/TrackingDashboard"
 import EventsPage from "./pages/EventsPage"
 import AnalyticsPage from "./pages/AnalyticsPage"
@@ -68,9 +70,20 @@ function Sidebar() {
   )
 }
 
+function RequireAuth({ children }: { children: JSX.Element }) {
+  const { isAuthenticated } = useAuth()
+  const location = useLocation()
+
+  if (!isAuthenticated) {
+    return <Navigate to="/signin" state={{ from: location }} replace />
+  }
+  return children
+}
+
 function App() {
   return (
-    <Router>
+    <AuthProvider>
+      <Router>
       <div className="flex min-h-screen text-slate-100">
         <Sidebar />
 
@@ -78,17 +91,55 @@ function App() {
           <div className="flex-1 overflow-y-auto p-8 animate-fade-in">
             <div className="max-w-7xl mx-auto">
               <Routes>
-                <Route index element={<TrackingDashboard />} />
-                <Route path="/upload" element={<VideoUploadPage />} />
-                <Route path="/events" element={<EventsPage />} />
-                <Route path="/analytics" element={<AnalyticsPage />} />
-                <Route path="/highlights" element={<HighlightsPage />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route
+                  index
+                  element={
+                    <RequireAuth>
+                      <TrackingDashboard />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/upload"
+                  element={
+                    <RequireAuth>
+                      <VideoUploadPage />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/events"
+                  element={
+                    <RequireAuth>
+                      <EventsPage />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/analytics"
+                  element={
+                    <RequireAuth>
+                      <AnalyticsPage />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/highlights"
+                  element={
+                    <RequireAuth>
+                      <HighlightsPage />
+                    </RequireAuth>
+                  }
+                />
               </Routes>
             </div>
           </div>
         </main>
       </div>
     </Router>
+    </AuthProvider>
   )
 }
 
