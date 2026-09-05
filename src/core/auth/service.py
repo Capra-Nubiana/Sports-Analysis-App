@@ -224,6 +224,7 @@ class AuthService:
             customer.phone_number = phone_number
 
         await self._session.flush()
+        await self._session.commit()
         return customer
 
     async def change_password(
@@ -241,6 +242,7 @@ class AuthService:
         self._pwd.validate(new_password)
         customer.password_hash = self._pwd.hash(new_password)
         await self._session.flush()
+        await self._session.commit()
 
     # ─── Biometric ───────────────────────────────────────────────────────────
 
@@ -258,6 +260,7 @@ class AuthService:
             raise NotFoundError("User not found")
         customer.biometric_public_key = public_key
         await self._session.flush()
+        await self._session.commit()
 
     async def login_with_biometric(
         self, user_id: str, challenge: str, signature: str
@@ -305,6 +308,7 @@ class AuthService:
             .where(RefreshToken.customer_id == uuid.UUID(customer_id))
             .values(replaced_by=uuid.uuid4())
         )
+        await self._session.commit()
 
     # ─── Internal helpers ──────────────────────────────────────────────────
 
@@ -332,6 +336,7 @@ class AuthService:
             )
         )
         await self._session.flush()
+        await self._session.commit()
 
         return access, refresh
 

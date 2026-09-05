@@ -8,10 +8,14 @@ Copyright (c) 2026 Philip Kwimba. All rights reserved.
 Licensed under AGPLv3 (see LICENSE).
 """
 
-from fastapi import FastAPI, WebSocket
+from dotenv import load_dotenv
 
-from src.api.app_state import app
-from src.api.routes import (
+load_dotenv()  # noqa: E402
+
+from fastapi import FastAPI, WebSocket  # noqa: E402
+
+from src.api.app_state import app  # noqa: E402
+from src.api.routes import (  # noqa: E402
     auth,
     events,
     highlights,
@@ -20,7 +24,7 @@ from src.api.routes import (
     players,
     videos,
 )
-from src.core.sport_config import SportConfig
+from src.core.sport_config import SportConfig  # noqa: E402
 
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(matches.router, prefix="/api/v1")

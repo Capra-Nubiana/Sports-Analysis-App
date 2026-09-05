@@ -9,7 +9,7 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, String, text
+from sqlalchemy import DateTime, ForeignKey, String, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.core.database.database import Base
@@ -69,7 +69,7 @@ class RefreshToken(Base):
     created_at: Mapped[datetime] = mapped_column(
         server_default=text("NOW()"), nullable=False
     )
-    expires_at: Mapped[datetime] = mapped_column(nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     replaced_by: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("refresh_tokens.id"), nullable=True
     )

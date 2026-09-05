@@ -18,7 +18,8 @@ ALTER TABLE customers
 
 -- ── Refresh tokens: device tracking ──
 ALTER TABLE refresh_tokens
-    ADD COLUMN IF NOT EXISTS device_name TEXT;
+    ADD COLUMN IF NOT EXISTS device_name TEXT,
+    ADD COLUMN IF NOT EXISTS token_type TEXT NOT NULL DEFAULT 'refresh';
 
 -- ── Indexes for faster lookups ──
 CREATE INDEX IF NOT EXISTS idx_refresh_tokens_hash ON refresh_tokens(token_hash);
