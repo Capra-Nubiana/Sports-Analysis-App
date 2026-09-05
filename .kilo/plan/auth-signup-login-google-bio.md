@@ -239,4 +239,19 @@ MPESA_PASSKEY=
 5. Replace mock services (`src/core/payments/stripe_service.py`, `mpesa_service.py`)
 6. Wire routes in `src/api/main.py`
 7. Write tests
+
+## Status: Complete
+
+All modules implemented, all 82 tests pass, full auth flow verified end-to-end
+against Supabase:
+
+- Register, login, profile, password change all working
+- Payment endpoints return graceful errors without credentials
+- Google OAuth and biometric endpoints wired
+
+### Bugs found & fixed during integration testing
+
+1. `.env` not loaded — `load_dotenv()` added to `src/api/main.py`, python-dotenv added to requirements.txt
+2. Transactions not committed — AuthService used flush() without commit(), causing writes to roll back. Added commit() to all write methods.
+3. Timezone mismatch — expires_at was TIMESTAMP WITHOUT TIME ZONE but code sent timezone-aware datetimes. Fixed with TIMESTAMPTZ migration.
 8. Update README with auth flow docs
