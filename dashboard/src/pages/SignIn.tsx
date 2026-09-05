@@ -1,10 +1,13 @@
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
 
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
+
 export default function SignIn() {
   const navigate = useNavigate()
-  const { login, isAuthenticated } = useAuth()
+  const { login, loginWithGoogle, isAuthenticated } = useAuth()
+  const googleBtnRef = useRef<HTMLDivElement>(null)
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -15,6 +18,35 @@ export default function SignIn() {
     navigate("/")
     return null
   }
+
+  useEffect(() => {
+    if (!GOOGLE_CLIENT_ID) return
+    const interval = setInterval(() => {
+      if (googleBtnRef.current && window.google?.accounts?.id) {
+        clearInterval(interval)
+        window.google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: async (response: { credential: string }) => {
+            try {
+              await loginWithGoogle(response.credential)
+              navigate("/")
+            } catch (err) {
+              setError(
+                err instanceof Error ? err.message : "Google sign-in failed",
+              )
+            }
+          },
+        })
+        window.google.accounts.id.renderButton(googleBtnRef.current, {
+          theme: "outline",
+          size: "large",
+          text: "sign_in_with",
+          width: "100%",
+        })
+      }
+    }, 200)
+    return () => clearInterval(interval)
+  }, [GOOGLE_CLIENT_ID, loginWithGoogle, navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,6 +78,10 @@ export default function SignIn() {
             <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-300 text-sm">
               {error}
             </div>
+          )}
+
+          {GOOGLE_CLIENT_ID && (
+            <div ref={googleBtnRef} className="mb-6 cursor-pointer" />
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">

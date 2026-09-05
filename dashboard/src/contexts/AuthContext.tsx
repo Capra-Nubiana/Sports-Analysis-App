@@ -16,6 +16,7 @@ interface AuthState {
 interface AuthContextValue extends AuthState {
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, full_name: string) => Promise<void>
+  loginWithGoogle: (idToken: string) => Promise<void>
   logout: () => void
 }
 
@@ -75,6 +76,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     storeTokens(tokens)
   }
 
+  const loginWithGoogle = async (idToken: string) => {
+    const res = await fetch(`${API_BASE}/auth/google`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id_token: idToken }),
+    })
+    if (!res.ok) {
+      const err = await res.json()
+      throw new Error(err.detail || "Google sign-in failed")
+    }
+    const tokens: AuthTokens = await res.json()
+    storeTokens(tokens)
+  }
+
   const logout = () => {
     localStorage.removeItem(TOKENS_KEY)
     setAccessToken(null)
@@ -89,6 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!accessToken,
         login,
         register,
+        loginWithGoogle,
         logout,
       }}
     >
